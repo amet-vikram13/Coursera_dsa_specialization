@@ -2,12 +2,14 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <queue>
 
 using std::stack;
 using std::cin;
 using std::cout;
 using std::endl;
 using std::vector;
+using std::queue;
 
 struct Node {
   int key;
@@ -18,22 +20,39 @@ struct Node {
   Node(int key_, int left_, int right_) : key(key_), left(left_), right(right_) {}
 };
 
-bool searchTree(vector<Node> tree,int root)
+bool searchTree(vector<Node> tree)
 {
-	if (root == -1) return true;
-
-	int left = tree[root].left;
-	int right = tree[root].right;
-
-	if (tree[left].key == tree[root].key)
-		return false;
-
-	return searchTree(tree,left)&&searchTree(tree,right);
+	int curr,sz,left,right;
+	queue<int> q;
+	q.push(0);
+	while(!q.empty())
+	{
+		sz = q.size();
+		while(sz--)
+		{
+			curr = q.front(); q.pop();
+			left = tree[curr].left;
+			right = tree[curr].right;
+			if (left!=-1)
+			{
+				if(tree[left].key == tree[curr].key)
+					return false;
+				q.push(left);
+			}
+			if (right!=-1)
+				q.push(right);
+		}
+	}
+	return true;
 }
 
 bool IsBinarySearchTree(const vector<Node>& tree) {
   // Implement correct algorithm here
   if (tree.size()<2) return true;
+  
+  if (!searchTree(tree))
+  	return false;
+
   vector<int> ino;
   stack<Node> st;
   int root = 0;
@@ -58,9 +77,6 @@ bool IsBinarySearchTree(const vector<Node>& tree) {
       }
   }
 
-  if (!searchTree(tree,0))
-  	return false;
-
   for(int i=1;i<ino.size();i++)
     if (ino[i] < ino[i-1])
       return false;
@@ -69,6 +85,7 @@ bool IsBinarySearchTree(const vector<Node>& tree) {
 }
 
 int main() {
+  std::ios_base::sync_with_stdio(false); 
   int nodes;
   cin >> nodes;
   vector<Node> tree;
